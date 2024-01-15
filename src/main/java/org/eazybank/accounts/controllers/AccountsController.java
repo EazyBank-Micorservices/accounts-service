@@ -1,6 +1,7 @@
 package org.eazybank.accounts.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.eazybank.accounts.constants.AccountsConstants;
 import org.eazybank.accounts.dto.CustomerDto;
 import org.eazybank.accounts.dto.ResponseDto;
 import org.eazybank.accounts.service.IAccountsService;
@@ -30,6 +31,14 @@ public class AccountsController {
     public ResponseEntity<CustomerDto> fetchAccountDetails(@RequestParam String mobileNumber) {
         CustomerDto customerDto = iAccountsService.fetchAccount(mobileNumber);
         return ResponseEntity.status(HttpStatus.OK).body(customerDto);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<ResponseDto> updateAccountDetails(@RequestBody CustomerDto customerDto) {
+        if (iAccountsService.updateAccount(customerDto))
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDto(AccountsConstants.STATUS_500, AccountsConstants.MESSAGE_500));
     }
 
 }

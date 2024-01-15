@@ -2,6 +2,7 @@ package org.eazybank.accounts.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.eazybank.accounts.constants.AccountsConstants;
+import org.eazybank.accounts.dto.AccountDto;
 import org.eazybank.accounts.dto.CustomerDto;
 import org.eazybank.accounts.entity.Account;
 import org.eazybank.accounts.entity.Customer;
@@ -15,6 +16,7 @@ import org.eazybank.accounts.service.IAccountsService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -26,7 +28,7 @@ public class IAccountsServiceImpl implements IAccountsService {
 
     @Override
     public void createAccount(CustomerDto customerDto) {
-        Customer customer = CustomerMapper.mapToCustomer(customerDto);
+        Customer customer = CustomerMapper.mapToCustomer(customerDto, new Customer());
 
         customerRepo.findByMobileNumber(customer.getMobileNumber()).ifPresent(foundCustomer -> {
             throw new CustomerAlreadyExistsException("Customer already exists with given mobile number %s".formatted(customer.getMobileNumber()));
@@ -43,15 +45,32 @@ public class IAccountsServiceImpl implements IAccountsService {
         return customerRepo
                 .findByMobileNumber(mobileNumber)
                 .map(customer -> {
-                    CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer);
+                    CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer, new CustomerDto());
                     Account account = accountRepo
                             .findByCustomerId(customer.getCustomerId())
                             .orElseThrow(() -> new ResourceNotFoundException("Account", "customerId", customer.getCustomerId().toString()));
-                    customerDto.setAccountDto(AccountMapper.mapToAccountsDto(account));
+                    customerDto.setAccountDto(AccountMapper.mapToAccountsDto(account, new AccountDto()));
                     return customerDto;
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("customer", "mobile number", mobileNumber));
 
+    }
+
+    @Override
+    public boolean updateAccount(CustomerDto customerDto) {
+        return Optional.ofNullable(customerDto.getAccountDto()).map(accountDto -> {
+            Account newAccount = accountRepo.findById(accountDto.getAccountNumber())
+                    .map(account -> accountRepo.save(AccountMapper.mapToAccounts(accountDto, account)))
+                    .orElseThrow(() -> new ResourceNotFoundException("Account", "Account number", accountDto.getAccountNumber().toString()));
+
+            customerRepo
+                    .findById(newAccount.getCustomerId())
+                    .map(customer -> customerRepo.save(CustomerMapper.mapToCustomer(customerDto, customer)))
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer", "CustomerID", newAccount.getCustomerId().toString()));
+
+            return true;
+
+        }).orElse(false);
     }
 
     private Account createNewAccount(Customer customer) {
