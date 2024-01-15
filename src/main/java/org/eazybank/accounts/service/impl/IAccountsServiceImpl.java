@@ -6,6 +6,8 @@ import org.eazybank.accounts.dto.CustomerDto;
 import org.eazybank.accounts.entity.Account;
 import org.eazybank.accounts.entity.Customer;
 import org.eazybank.accounts.exception.CustomerAlreadyExistsException;
+import org.eazybank.accounts.exception.ResourceNotFoundException;
+import org.eazybank.accounts.mapper.AccountMapper;
 import org.eazybank.accounts.mapper.CustomerMapper;
 import org.eazybank.accounts.repository.AccountRepo;
 import org.eazybank.accounts.repository.CustomerRepo;
@@ -24,7 +26,7 @@ public class IAccountsServiceImpl implements IAccountsService {
 
     @Override
     public void createAccount(CustomerDto customerDto) {
-        Customer customer = CustomerMapper.mapToCustomer(customerDto, new Customer());
+        Customer customer = CustomerMapper.mapToCustomer(customerDto);
 
         customerRepo.findByMobileNumber(customer.getMobileNumber()).ifPresent(foundCustomer -> {
             throw new CustomerAlreadyExistsException("Customer already exists with given mobile number %s".formatted(customer.getMobileNumber()));
@@ -34,6 +36,22 @@ public class IAccountsServiceImpl implements IAccountsService {
         customer.setCreatedBy("user 123");
         Customer savedCustomer = customerRepo.save(customer);
         accountRepo.save(createNewAccount(savedCustomer));
+    }
+
+    @Override
+    public CustomerDto fetchAccount(String mobileNumber) {
+        return customerRepo
+                .findByMobileNumber(mobileNumber)
+                .map(customer -> {
+                    CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer);
+                    Account account = accountRepo
+                            .findByCustomerId(customer.getCustomerId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Account", "customerId", customer.getCustomerId().toString()));
+                    customerDto.setAccountDto(AccountMapper.mapToAccountsDto(account));
+                    return customerDto;
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("customer", "mobile number", mobileNumber));
+
     }
 
     private Account createNewAccount(Customer customer) {
