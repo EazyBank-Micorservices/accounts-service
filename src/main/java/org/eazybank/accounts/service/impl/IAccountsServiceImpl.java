@@ -1,5 +1,6 @@
 package org.eazybank.accounts.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.eazybank.accounts.constants.AccountsConstants;
 import org.eazybank.accounts.dto.AccountDto;
@@ -21,6 +22,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class IAccountsServiceImpl implements IAccountsService {
 
     private final CustomerRepo customerRepo;
@@ -70,6 +72,16 @@ public class IAccountsServiceImpl implements IAccountsService {
 
             return true;
 
+        }).orElse(false);
+    }
+
+    @Override
+    public boolean deleteAccount(String mobileNumber) {
+
+        return customerRepo.findByMobileNumber(mobileNumber).map(customer -> {
+            accountRepo.deleteByCustomerId(customer.getCustomerId());
+            customerRepo.deleteById(customer.getCustomerId());
+            return true;
         }).orElse(false);
     }
 
