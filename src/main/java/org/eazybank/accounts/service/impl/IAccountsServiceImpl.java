@@ -1,11 +1,19 @@
 package org.eazybank.accounts.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.eazybank.accounts.constants.AccountsConstants;
 import org.eazybank.accounts.dto.CustomerDto;
+import org.eazybank.accounts.entity.Account;
+import org.eazybank.accounts.entity.Customer;
+import org.eazybank.accounts.exception.CustomerAlreadyExistsException;
+import org.eazybank.accounts.mapper.CustomerMapper;
 import org.eazybank.accounts.repository.AccountRepo;
 import org.eazybank.accounts.repository.CustomerRepo;
 import org.eazybank.accounts.service.IAccountsService;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +24,31 @@ public class IAccountsServiceImpl implements IAccountsService {
 
     @Override
     public void createAccount(CustomerDto customerDto) {
+        Customer customer = CustomerMapper.mapToCustomer(customerDto, new Customer());
+
+        customerRepo.findByMobileNumber(customer.getMobileNumber()).ifPresent(foundCustomer -> {
+            throw new CustomerAlreadyExistsException("Customer already exists with given mobile number %s".formatted(customer.getMobileNumber()));
+        });
+
+        customer.setCreatedAt(LocalDateTime.now());
+        customer.setCreatedBy("user 123");
+        Customer savedCustomer = customerRepo.save(customer);
+        accountRepo.save(createNewAccount(savedCustomer));
+    }
+
+    private Account createNewAccount(Customer customer) {
+        Account newAccount = new Account();
+        newAccount.setCustomerId(customer.getCustomerId());
+        long randomAccNumber = 1000000000L + new Random().nextInt(900000000);
+
+        newAccount.setAccountNumber(randomAccNumber);
+        newAccount.setBranchAddress(AccountsConstants.ADDRESS);
+        newAccount.setAccountType(AccountsConstants.SAVINGS);
+
+        newAccount.setCreatedAt(LocalDateTime.now());
+        newAccount.setCreatedBy("user 123");
+
+        return newAccount;
 
     }
 }

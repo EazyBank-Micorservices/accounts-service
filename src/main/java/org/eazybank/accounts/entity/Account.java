@@ -17,7 +17,7 @@ public class Account extends BaseEntity {
 
     private Long customerId;
     @Id
-    private String accountNumber;
+    private Long accountNumber;
     private String accountType;
     private String branchAddress;
 }
