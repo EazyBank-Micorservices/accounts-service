@@ -1,5 +1,6 @@
 package org.eazybank.accounts.controllers;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import static org.eazybank.accounts.constants.AccountsConstants.MESSAGE_201;
 import static org.eazybank.accounts.constants.AccountsConstants.STATUS_201;
 
+@Tag(
+        name = "CRUD REST APIs for Accounts Service EazyBank",
+        description = "CRUD REST APIS In EazyBank to CREATE, UPDATE, FETCH AND DELETE account details"
+)
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
