@@ -28,7 +28,6 @@ import static org.eazybank.accounts.constants.AccountsConstants.STATUS_201;
         name = "CRUD REST APIs for Accounts Service EazyBank",
         description = "CRUD REST APIS In EazyBank to CREATE, UPDATE, FETCH AND DELETE account details"
 )
-@RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @Validated
@@ -37,6 +36,10 @@ public class AccountsController {
     private final IAccountsService iAccountsService;
     @Value("${build.version}")
     private String buildVersion;
+
+    public AccountsController(IAccountsService iAccountsService) {
+        this.iAccountsService = iAccountsService;
+    }
 
     @Operation(
             summary = "Create Account REST API",
