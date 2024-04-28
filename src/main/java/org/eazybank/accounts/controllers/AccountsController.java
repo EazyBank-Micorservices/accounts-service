@@ -42,7 +42,6 @@ public class AccountsController {
     private Environment environment;
     @Autowired
     private AccountsContactInfoDto accountsContactInfoDto;
-    private AccountsContactInfoDto accountsContactInfoDto;
 
     public AccountsController(IAccountsService iAccountsService) {
         this.iAccountsService = iAccountsService;
