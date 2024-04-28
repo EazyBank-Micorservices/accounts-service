@@ -14,6 +14,7 @@ import org.eazybank.accounts.dto.CustomerDto;
 import org.eazybank.accounts.dto.ErrorResponseDto;
 import org.eazybank.accounts.dto.ResponseDto;
 import org.eazybank.accounts.service.IAccountsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,8 @@ import static org.eazybank.accounts.constants.AccountsConstants.STATUS_201;
 public class AccountsController {
 
     private final IAccountsService iAccountsService;
+    @Value("${build.version}")
+    private String buildVersion;
 
     @Operation(
             summary = "Create Account REST API",
@@ -142,6 +145,29 @@ public class AccountsController {
         if (iAccountsService.deleteAccount(mobileNumber))
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDto(AccountsConstants.STATUS_400, AccountsConstants.MESSAGE_400));
+    }
+
+    @Operation(
+            summary = "Get Build information",
+            description = "Get build information that is deployed into accounts microservice"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
+    @GetMapping("/build-info")
+    public ResponseEntity<String> getBuildInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
     }
 
 }
