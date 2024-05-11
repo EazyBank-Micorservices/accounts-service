@@ -7,6 +7,11 @@ spring:
     active: "prod"
   config:
     import: "optional:configserver:http://localhost:8071/" #optional: Used when the application can start without the application properties
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
   datasource:
     url: jdbc:mysql://localhost:3306/accountsdb
     username: dennis
