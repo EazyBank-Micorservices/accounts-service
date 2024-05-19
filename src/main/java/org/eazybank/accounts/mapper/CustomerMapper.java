@@ -1,5 +1,6 @@
 package org.eazybank.accounts.mapper;
 
+import org.eazybank.accounts.dto.CustomerDetailsDto;
 import org.eazybank.accounts.dto.CustomerDto;
 import org.eazybank.accounts.entity.Customer;
 
@@ -9,6 +10,14 @@ public class CustomerMapper {
         customerDto.setEmail(customer.getEmail());
         customerDto.setMobileNumber(customer.getMobileNumber());
         return customerDto;
+    }
+
+
+    public static CustomerDetailsDto mapToCustomerDetailsDto(Customer customer, CustomerDetailsDto customerDetailsDto) {
+        customerDetailsDto.setName(customer.getName());
+        customerDetailsDto.setEmail(customer.getEmail());
+        customerDetailsDto.setMobileNumber(customer.getMobileNumber());
+        return customerDetailsDto;
     }
 
 
