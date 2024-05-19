@@ -9,8 +9,8 @@ spring:
     import: "optional:configserver:http://localhost:8071/" #optional: Used when the application can start without the application properties
   datasource:
     url: jdbc:mysql://localhost:3306/accountsdb
-    username: root
-    password: root
+    username: dennis
+    password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
@@ -22,5 +22,28 @@ management:
     web:
       exposure:
         include: "*"
+  endpoint:
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
 
+endpoints:
+  shutdown:
+    enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8070/eureka
+info:
+  app:
+    name: "accounts"
+    description: "Eazy Bank Accounts Application"
+    version: "1.0.0"
 
