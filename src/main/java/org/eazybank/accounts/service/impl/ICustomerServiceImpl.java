@@ -1,6 +1,5 @@
 package org.eazybank.accounts.service.impl;
 
-import lombok.RequiredArgsConstructor;
 import org.eazybank.accounts.dto.AccountDto;
 import org.eazybank.accounts.dto.CardDto;
 import org.eazybank.accounts.dto.CustomerDetailsDto;
@@ -15,11 +14,12 @@ import org.eazybank.accounts.repository.CustomerRepo;
 import org.eazybank.accounts.service.ICustomerService;
 import org.eazybank.accounts.service.client.CardsFeignClient;
 import org.eazybank.accounts.service.client.LoansFeignClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+
 public class ICustomerServiceImpl implements ICustomerService {
 
     private final AccountRepo accountRepo;
@@ -27,6 +27,15 @@ public class ICustomerServiceImpl implements ICustomerService {
     private final CardsFeignClient cardsFeignClient;
     private final LoansFeignClient loansFeignClient;
 
+    public ICustomerServiceImpl(AccountRepo accountRepo,
+                                CustomerRepo customerRepo,
+                                @Qualifier("cardsServiceClient") CardsFeignClient cardsFeignClient,
+                                @Qualifier("loansServiceClient") LoansFeignClient loansFeignClient) {
+        this.accountRepo = accountRepo;
+        this.customerRepo = customerRepo;
+        this.cardsFeignClient = cardsFeignClient;
+        this.loansFeignClient = loansFeignClient;
+    }
 
     @Override
     public CustomerDetailsDto fetchCustomerDetails(String mobileNumber) {
@@ -41,10 +50,11 @@ public class ICustomerServiceImpl implements ICustomerService {
         customerDetailsDto.setAccountDto(AccountMapper.mapToAccountsDto(account, new AccountDto()));
 
         ResponseEntity<LoanDto> loanDtoResponseEntity = loansFeignClient.fetchLoanDetails(mobileNumber);
-        customerDetailsDto.setLoanDto(loanDtoResponseEntity.getBody());
+        if (loanDtoResponseEntity != null) customerDetailsDto.setLoanDto(loanDtoResponseEntity.getBody());
+
 
         ResponseEntity<CardDto> cardDtoResponseEntity = cardsFeignClient.fetchCardDetails(mobileNumber);
-        customerDetailsDto.setCardDto(cardDtoResponseEntity.getBody());
+        if (cardDtoResponseEntity != null) customerDetailsDto.setCardDto(cardDtoResponseEntity.getBody());
 
         return customerDetailsDto;
     }
