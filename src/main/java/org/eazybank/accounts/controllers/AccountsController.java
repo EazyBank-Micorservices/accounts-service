@@ -1,5 +1,6 @@
 package org.eazybank.accounts.controllers;
 
+import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,6 +15,8 @@ import org.eazybank.accounts.dto.CustomerDto;
 import org.eazybank.accounts.dto.ErrorResponseDto;
 import org.eazybank.accounts.dto.ResponseDto;
 import org.eazybank.accounts.service.IAccountsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -35,6 +38,7 @@ import static org.eazybank.accounts.constants.AccountsConstants.STATUS_201;
 @Validated
 public class AccountsController {
 
+    private static final Logger log = LoggerFactory.getLogger(AccountsController.class);
     private final IAccountsService iAccountsService;
     @Value("${build.version}")
     private String buildVersion;
@@ -175,8 +179,16 @@ public class AccountsController {
             )
     })
     @GetMapping("/build-info")
+    @Retry(name = "getBuildInfo", fallbackMethod = "getBuildInfoFallback")
     public ResponseEntity<String> getBuildInfo() {
+        log.info("getBuildInfo() method Invoked");
         return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
+    }
+
+
+    public ResponseEntity<String> getBuildInfoFallback(Throwable throwable) {
+        log.info("getBuildInfoFallback() method Invoked");
+        return ResponseEntity.status(HttpStatus.OK).body("0.9");
     }
 
     @Operation(

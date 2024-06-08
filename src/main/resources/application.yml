@@ -51,3 +51,24 @@ info:
     description: "Eazy Bank Accounts Application"
     version: "1.0.0"
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        permitted-number-of-calls-in-half-open-state: 2
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10000
+
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 100
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        ignore-exceptions:
+          - java.lang.NullPointerException # ignore retry  in null pointer
+        retry-exceptions:
+          - java.util.concurrent.TimeoutException #retry in time of timeouts
+
