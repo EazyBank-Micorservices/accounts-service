@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS customers;
+
 CREATE TABLE IF NOT EXISTS customers
 (
     customer_id   int auto_increment primary key,
@@ -10,12 +12,15 @@ CREATE TABLE IF NOT EXISTS customers
     updated_by    varchar(20) default null
 );
 
+DROP TABLE IF EXISTS accounts;
+
 CREATE table if not exists accounts
 (
     customer_id    int          not null,
     account_number int auto_increment primary key,
     account_type   varchar(100) not null,
     branch_address varchar(200) not null,
+    communication_sw boolean,
     created_at     date         not null,
     created_by     varchar(20)  not null,
     updated_at     date        default null,

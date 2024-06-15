@@ -1,5 +1,6 @@
 package org.eazybank.accounts.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -20,4 +21,6 @@ public class Account extends BaseEntity {
     private Long accountNumber;
     private String accountType;
     private String branchAddress;
+    @Column(name = "communication_sw")
+    private Boolean communicationSw;
 }
